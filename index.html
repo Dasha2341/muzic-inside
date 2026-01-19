@@ -2,6 +2,59 @@
 <html>
 <head>
    <style>
+  /* Новогодний фон */
+  body {
+    background: linear-gradient(135deg, #0a4a26 0%, #1e7b4c 100%) !important;
+    color: #fff !important;
+    font-family: 'Arial', sans-serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Стили для заголовков */
+  h2 {
+    color: #ffd700 !important; /* Золотой цвет */
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+  }
+
+  /* Снег */
+  .snowflake {
+    position: absolute;
+    top: -20px;
+    color: #fff;
+    font-size: 24px;
+    user-select: none;
+    opacity: 0.8;
+    animation: fall linear forwards;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(105vh) rotate(360deg);
+    }
+  }
+</style>
+
+<script>
+  // Генерация снежинок
+  document.addEventListener('DOMContentLoaded', () => {
+    const snowContainer = document.body;
+    const snowflakes = ['❄', '❅', '❆'];
+
+    for (let i = 0; i < 30; i++) {
+      const snow = document.createElement('div');
+      snow.className = 'snowflake';
+      snow.innerHTML = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+      snow.style.left = Math.random() * 100 + 'vw';
+      snow.style.fontSize = (Math.random() * 20 + 10) + 'px';
+      snow.style.opacity = Math.random() * 0.5 + 0.3;
+      snow.style.animationDuration = (Math.random() * 5 + 5) + 's';
+      snow.style.animationDelay = Math.random() * 5 + 's';
+      snowContainer.appendChild(snow);
+    }
+  });
+</script>
+   <style>
   body {
     color: #003366;                /* Тёмно-синий текст */
     font-family: Arial, sans-serif;
