@@ -8,3 +8,7 @@ my_library/
 ├── LICENSE
 ├── setup.py (или pyproject.toml)
 └── requirements.txt
+from .core import my_function
+
+__version__ = '0.1.0'
+__all__ = ['my_function']
