@@ -88,3 +88,100 @@
    <p> б.Ц Щ Е Б Ф→ ВЕСНА при k = 20</p>
   <p>«Арсенова»→  ЗЧШМФХЙЗ k=7 </p>
 </html>
+<h2>RSA Шифрование (учебный пример)</h2>
+  <p>Пусть сообщение m = 2 означает «анализ готов».</p>
+  <p>Условие: m &lt; n → 2 &lt; 15 → ✅</p>
+  <p>Открытый ключ: (e = 3, n = 15)<br>
+     Закрытый ключ: d = 3</p>
+
+  <label>Введите m (для шифрования) или C (для расшифровки):</label><br>
+  <input type="text" id="input" value="2"><br><br>
+
+  <button onclick="encrypt()">Зашифровать</button>
+  <button onclick="decrypt()">Расшифровать</button>
+
+  <pre id="output"></pre>
+
+  <p>В реальности n — 259102381787105367293057583697233129367946271257193911301150513669377139993314021329683872638127121339361292933959411577748733119954791126133331553599236134181343727120145903121911025191911111712511911111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111.</p>
+
+  <!-- Запись 17 февраля 2026 -->
+  <h2>17 февраля 2026</h2>
+  <img src="icons/DSC00961.jpg" alt="Фото" style="max-width: 100%;">
+  <p>Топ-3 предсказаний:
+  match: 36.48%,
+  hammer: 19.86%,
+  maraca: 14.05%
+  </p>
+
+  <!-- СЕГОДНЯШНЯЯ ДАТА 21 ФЕВРАЛЯ 2026 ПО ВАШЕМУ ЗАПРОСУ -->
+  <h2>21 февраля 2026 (сегодня)</h2>
+  <p><strong>Лог чат-бота:</strong></p>
+  <p>Вопрос пользователя: Сколько ждать мой заказ?</p>
+  <p>Найден FAQ-вопрос: «Как быстро доставляется заказ?» (sim=0.706)</p>
+  <p>Ответ бот-FAQ: Наш стандартный срок доставки — 3–5 рабочих дней.</p>
+  <p>Дополнительный вопрос: «Как оплатить заказ?» Чат-бот справился с вопросом? <em>Да, бот успешно нашел соответствующий FAQ и дал ответ по срокам доставки. По вопросу оплаты нужно проверить отдельно.</em></p>
+
+  <!-- Скрипт для RSA -->
+  <script>
+    const e = 3;
+    const d = 3;
+    const n = 15;
+
+    function modExp(base, exp, mod) {
+      let result = 1;
+      base = base % mod;
+      while (exp > 0) {
+        if (exp % 2 === 1) {
+          result = (result * base) % mod;
+        }
+        exp = Math.floor(exp / 2);
+        base = (base * base) % mod;
+      }
+      return result;
+    }
+
+    function encrypt() {
+      const input = document.getElementById('input').value.trim();
+      if (input === '') {
+        document.getElementById('output').innerText = 'Ошибка: введите сообщение m.';
+        return;
+      }
+      const m = Number(input);
+      if (!Number.isInteger(m) || m < 0) {
+        document.getElementById('output').innerText = 'Ошибка: m должно быть целым неотрицательным числом.';
+        return;
+      }
+      if (m >= n) {
+        document.getElementById('output').innerText = 'Ошибка: m должно быть меньше n (m < 15).';
+        return;
+      }
+      const C = modExp(m, e, n);
+      document.getElementById('output').innerText = 
+        'Шифрование:\n' +
+        'C = m^e mod n = ' + m + '^' + e + ' mod ' + n + ' = ' + C;
+    }
+
+    function decrypt() {
+      const input = document.getElementById('input').value.trim();
+      if (input === '') {
+        document.getElementById('output').innerText = 'Ошибка: введите шифротекст C.';
+        return;
+      }
+      const C = Number(input);
+      if (!Number.isInteger(C) || C < 0) {
+        document.getElementById('output').innerText = 'Ошибка: C должно быть целым неотрицательным числом.';
+        return;
+      }
+      if (C >= n) {
+        document.getElementById('output').innerText = 'Ошибка: C должно быть меньше n (C < 15).';
+        return;
+      }
+      const m = modExp(C, d, n);
+      document.getElementById('output').innerText = 
+        'Расшифровка:\n' +
+        'm = C^d mod n = ' + C + '^' + d + ' mod ' + n + ' = ' + m;
+    }
+  </script>
+
+</body>
+</html>
