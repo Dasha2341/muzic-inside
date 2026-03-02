@@ -1,0 +1,10 @@
+my_library/
+├── my_library/
+│   ├── __init__.py
+│   └── core.py
+├── tests/
+│   └── test_core.py
+├── README.md
+├── LICENSE
+├── setup.py (или pyproject.toml)
+└── requirements.txt
