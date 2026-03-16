@@ -184,6 +184,7 @@
   </script>
 
 </body>
+ <h2> 16 марта , 2026</h2>
   """
 Прогнозирование баллов с помощью линейной регрессии
 Модель предсказывает результаты на основе часов практики
@@ -193,35 +194,34 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 
 
-def load_and_prepare_data(filepath):
+def load_and_prepare_data(filepath='task_regression.csv'):
     """Загрузка и подготовка данных"""
     dataset = pd.read_csv(filepath, sep=';', decimal=',')
     dataset = dataset.sort_values(by='Часы').reset_index(drop=True)
     return dataset
 
 
-def train_model(X, Y):
-    """Обучение модели линейной регрессии"""
+def create_model(dataset):
+    """Создание и обучение модели"""
+    X = dataset[['Часы']]
+    Y = dataset['Полученные. Баллы']
+    
     X_train, X_test, Y_train, Y_test = train_test_split(
-        X, Y,
-        test_size=0.2,
-        random_state=42,
-        shuffle=True
+        X, Y, test_size=0.2, random_state=42, shuffle=True
     )
     
     regressor = LinearRegression()
     regressor.fit(X_train, Y_train)
     
-    return regressor, X_train, X_test, Y_train, Y_test
+    return regressor, X, Y
 
 
-def predict_single(regressor, hours):
+def predict_single(regressor, hours=5):
     """
-    Одиночный прогноз для одного студента
+    Один прогноз (выложить на свой сайт)
     """
     new_student = pd.DataFrame({'Часы': [hours]})
     prediction = regressor.predict(new_student)
@@ -232,92 +232,12 @@ def predict_single(regressor, hours):
     return prediction[0]
 
 
-def predict_multiple(regressor, hours_list):
+def predict_multiple(regressor, hours_list=[1, 3, 5, 7, 10]):
     """
-    Массовый прогноз для группы студентов
+    Несколько прогнозов - группа студентов
     """
-    students = pd.DataFrame({'Часы': hours_list})
-    predictions = regressor.predict(students)
-    
-    # Красивая таблица результатов
-    results = pd.DataFrame({
-        'Часы подготовки': students['Часы'],
-        'Прогноз баллов': predictions
-    })
-    
-    print("\nПрогнозы для группы студентов:")
-    print(results.to_string(index=False))
-    
-    return results
-
-
-def visualize_predictions(regressor, X_test, Y_test, predictions):
-    """Визуализация результатов прогнозирования"""
-    plt.figure(figsize=(10, 6))
-    
-    # Фактические значения
-    plt.scatter(X_test, Y_test, color='blue', alpha=0.6, label='Фактические', s=100)
-    
-    # Прогнозные значения
-    plt.scatter(X_test, predictions, color='red', alpha=0.6, label='Прогноз', s=100, marker='x')
-    
-    # Линия регрессии
-    X_line = np.linspace(X_test.min(), X_test.max(), 100).reshape(-1, 1)
-    y_line = regressor.predict(X_line)
-    plt.plot(X_line, y_line, color='green', linewidth=2, label='Линия регрессии')
-    
-    plt.title('Фактические vs Прогнозные значения', fontsize=14, fontweight='bold')
-    plt.xlabel('Часы практики', fontsize=11)
-    plt.ylabel('Баллы', fontsize=11)
-    plt.legend(fontsize=10)
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.show()
-
-
-def main():
-    """Основная функция"""
-    print("=" * 60)
-    print("ПРОГНОЗИРОВАНИЕ РЕЗУЛЬТАТОВ АНАЛИЗА ДАННЫХ")
-    print("=" * 60)
-    
-    # Загрузка данных
-    dataset = load_and_prepare_data('task_regression.csv')
-    
-    # Подготовка данных
-    X = dataset[['Часы']]
-    Y = dataset['Полученные. Баллы']
-    
-    # Обучение модели
-    regressor, X_train, X_test, Y_train, Y_test = train_model(X, Y)
-    
-    print(f"\n✅ Модель обучена!")
-    print(f"   Уравнение: Баллы = {regressor.coef_[0]:.3f} × Часы + {regressor.intercept_:.3f}")
-    
-    # Оценка качества
-    Y_pred = regressor.predict(X_test)
-    mae = mean_absolute_error(Y_test, Y_pred)
-    r2 = r2_score(Y_test, Y_pred)
-    
-    print(f"   MAE: {mae:.2f}, R²: {r2:.4f}")
-    
-    print("\n" + "=" * 60)
-    print("1. ОДИН ПРОГНОЗ (для сайта)")
-    print("=" * 60)
-    
-    # Один прогноз (выложить на свой сайт)
-    new_student = pd.DataFrame({'Часы': [5]})
-    prediction = regressor.predict(new_student)
-    print(f"Студент занимался 5 часов")
-    print(f"Прогноз баллов: {prediction[0]:.2f}")
-    
-    print("\n" + "=" * 60)
-    print("2. НЕСКОЛЬКО ПРОГНОЗОВ (группа студентов)")
-    print("=" * 60)
-    
-    # Несколько прогнозов
     # Группа студентов
-    students = pd.DataFrame({'Часы': [1, 3, 5, 7, 10]})
+    students = pd.DataFrame({'Часы': hours_list})
     
     # Прогноз для всех
     predictions = regressor.predict(students)
@@ -327,17 +247,68 @@ def main():
         'Часы подготовки': students['Часы'],
         'Прогноз баллов': predictions
     })
-    print(results.to_string(index=False))
     
-    # Визуализация
-    print("\n" + "=" * 60)
-    print("3. ВИЗУАЛИЗАЦИЯ РЕЗУЛЬТАТОВ")
+    print(results)
+    
+    return results
+
+
+def save_plot(regressor, X, Y, filename='regression_plot.png'):
+    """
+    Сохранение графика модели
+    """
+    plt.figure(figsize=(10, 6))
+    
+    # Точки данных
+    plt.scatter(X, Y, color='blue', alpha=0.6, label='Данные')
+    
+    # Линия регрессии
+    X_line = pd.DataFrame({'Часы': np.linspace(X['Часы'].min(), X['Часы'].max(), 100)})
+    y_line = regressor.predict(X_line)
+    plt.plot(X_line['Часы'], y_line, color='red', linewidth=2, label='Регрессия')
+    
+    plt.title('Зависимость баллов от часов практики')
+    plt.xlabel('Часы')
+    plt.ylabel('Баллы')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    
+    # Сохранение графика
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.show()
+    
+    print(f"График сохранен как {filename}")
+
+
+def main():
+    """Основная функция"""
     print("=" * 60)
-    visualize_predictions(regressor, X_test, Y_test, predictions)
+    print("ПРОГНОЗИРОВАНИЕ РЕЗУЛЬТАТОВ")
+    print("=" * 60)
     
-    return regressor, results
+    # Загрузка данных и создание модели
+    dataset = load_and_prepare_data()
+    regressor, X, Y = create_model(dataset)
+    
+    print(f"\nМодель создана!")
+    print(f"Уравнение: Баллы = {regressor.coef_[0]:.3f} × Часы + {regressor.intercept_:.3f}")
+    
+    print("\n" + "=" * 60)
+    print("1. ОДИН ПРОГНОЗ (выложить на свой сайт)")
+    print("=" * 60)
+    predict_single(regressor, hours=5)
+    
+    print("\n" + "=" * 60)
+    print("2. НЕСКОЛЬКО ПРОГНОЗОВ")
+    print("=" * 60)
+    predict_multiple(regressor, [1, 3, 5, 7, 10])
+    
+    print("\n" + "=" * 60)
+    print("3. СОХРАНЕНИЕ ГРАФИКА")
+    print("=" * 60)
+    save_plot(regressor, X, Y, 'regression_plot.png')
 
 
 if __name__ == "__main__":
-    model, results_table = main()
+    main()
 </html>
