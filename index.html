@@ -192,3 +192,79 @@ print(f"Прогноз баллов: {prediction[0]:.2f}"
   Студент занимался 5 часов
 Прогноз баллов: 50.23
 </html>
+   <h2> 25 марта , 2026</h2>
+  import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# 1. Генерация данных
+np.random.seed(42) # Для воспроизводимости результата
+
+n_samples = 1000
+
+# Возраст (от 18 до 70 лет)
+age = np.random.randint(18, 70, n_samples)
+
+# Стаж вождения (от 0 до 50 лет, но не больше возраста - 18)
+# Упрощенно генерируем от 0 до 40
+driving_experience = np.random.randint(0, 40, n_samples)
+
+# Число ДТП (большинство водителей без ДТП, поэтому веса смещены)
+accidents = np.random.choice([0, 1, 2, 3, 4, 5], n_samples, p=[0.6, 0.2, 0.1, 0.05, 0.03, 0.02])
+
+# 2. Формирование целевой переменной (Решение о страховке)
+# Логика: 
+# - Молодые (<23) и новички (<2 года стажа) - риск выше.
+# - Наличие ДТП сильно снижает шансы.
+decision = []
+for i in range(n_samples):
+    risk_score = 0
+    if age[i] < 23:
+        risk_score += 2
+    if driving_experience[i] < 2:
+        risk_score += 2
+    if accidents[i] > 0:
+        risk_score += accidents[i] * 1.5
+    
+    # Если риск высокий (> 3 баллов) - отказ (0), иначе одобрение (1)
+    # Добавим немного случайности, чтобы модель не была идеальной (как в жизни)
+    if risk_score > 3.5 or (risk_score > 2 and np.random.random() > 0.7):
+        decision.append(0) # Отказ
+    else:
+        decision.append(1) # Одобрено
+
+# Создание DataFrame
+df = pd.DataFrame({
+    'age': age,
+    'driving_experience': driving_experience,
+    'accidents_count': accidents,
+    'insurance_decision': decision
+})
+
+# 3. Обучение модели
+X = df[['age', 'driving_experience', 'accidents_count']]
+y = df['insurance_decision']
+
+# Разделение на обучающую и тестовую выборки (80% на обучение, 20% на тест)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Использование алгоритма Random Forest (Случайный лес)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Предсказание на тестовых данных
+y_pred = model.predict(X_test)
+
+# 4. Расчет точности
+accuracy = accuracy_score(y_test, y_pred)
+
+# Вывод результатов
+print("Первые 5 строк сгенерированного датасета:")
+print(df.head())
+print("\n" + "="*30)
+print(f"ТОЧНОСТЬ МОДЕЛИ (Accuracy): {accuracy:.2%}")
+print("="*30)
+print("Модель готова к интеграции на сайт.")
+</html>
